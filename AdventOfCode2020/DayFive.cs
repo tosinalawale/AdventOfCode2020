@@ -66,33 +66,22 @@
 
         public static double CalculateResultForPartTwo(string[] input)
         {
-            var seatsFound = new List<(double, double)>(input.Length);
-            foreach (var boardingPass in input)
-            {
-                seatsFound.Add((FindRow(boardingPass), FindColumn(boardingPass)));
-            }
+            var seatsFound = input.Select(boardingPass => (FindRow(boardingPass), FindColumn(boardingPass))).ToList();
 
-            var missingSeats = new List<(double, double)>(input.Length);
-            for (int i = 0; i < 128; i++)
+            var missingSeatIds = new List<double>();
+            for (var i = 0; i < 128; i++)
             {
-                for (int j = 0; j < 8; j++)
+                for (var j = 0; j < 8; j++)
                 {
                     if (!seatsFound.Contains((i, j)))
                     {
-                        missingSeats.Add((i,j));
+                        missingSeatIds.Add(CalculateSeatId(i,j));
                     }
                 }
             }
 
-            foreach (var seat in missingSeats)
-            {
-                var seatId = CalculateSeatId(seat.Item1, seat.Item2);
-                var seatIdPlusOneMissing = missingSeats.Any(s => CalculateSeatId(s.Item1, s.Item2) == seatId + 1);
-                var seatIdMinusOneMissing = missingSeats.Any(s => CalculateSeatId(s.Item1, s.Item2) == seatId - 1);
-                if (!seatIdPlusOneMissing && !seatIdMinusOneMissing) return seatId;
-            }
-
-            return 0;
+            return missingSeatIds.FirstOrDefault(
+                sid => !missingSeatIds.Contains(sid + 1) && !missingSeatIds.Contains(sid - 1));
         }
     }
 }
