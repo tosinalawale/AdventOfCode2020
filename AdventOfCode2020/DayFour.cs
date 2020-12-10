@@ -62,57 +62,38 @@
         {
             var passportDictionary = GenerateDictionaryForPassport(passport);
             
-            if (!YearValueIsValid("byr", 1920, 2002, passportDictionary)) return false;
-
-            if (!YearValueIsValid("iyr", 2010, 2020, passportDictionary)) return false;
-
-            if (!YearValueIsValid("eyr", 2020, 2030, passportDictionary)) return false;
-
-            //var iyrValue = passportDictionary["iyr"];
-            //var iyrInt = Int16.Parse(iyrValue);
-            //if (!(iyrValue.Length == 4 && iyrInt >= 2010 && iyrInt <= 2020))
-            //{
-            //    return false;
-            //}
-
-            //var byrValue = passportDictionary["byr"];
-            //var byrInt = Int16.Parse(byrValue);
-            //if (!(byrValue.Length == 4 && byrInt >= 2020 && byrInt <= 2030))
-            //{
-            //    return false;
-            //}
+            if (!NumberInRange(short.Parse(passportDictionary["byr"]), 1920, 2002)) return false;
+            
+            if (!NumberInRange(short.Parse(passportDictionary["iyr"]), 2010, 2020)) return false;
+            
+            if (!NumberInRange(short.Parse(passportDictionary["eyr"]), 2020, 2030)) return false;
 
             var hgtValue = passportDictionary["hgt"];
             if (hgtValue.EndsWith("cm"))
             {
                 var hgtInt = short.Parse(hgtValue.Replace("cm", ""));
-                if (!(hgtInt >= 150 && hgtInt <= 193)) return false;
+                if (!NumberInRange(hgtInt, 150, 193)) return false;
             }
             else if (hgtValue.EndsWith("in"))
             {
                 var hgtInt = short.Parse(hgtValue.Replace("in", ""));
-                if (!(hgtInt >= 59 && hgtInt <= 76)) return false;
+                if (!NumberInRange(hgtInt, 59, 76)) return false;
             }
             else
             {
                 return false;
             }
 
-            var hclValue = passportDictionary["hcl"];
-            if (!Regex.IsMatch(hclValue, @"^#[0-9a-f]{6}$")) return false;
-
-            var eclValue = passportDictionary["ecl"];
-            if (!Regex.IsMatch(eclValue, @"(amb|blu|brn|gry|grn|hzl|oth)")) return false;
-
-            var pidValue = passportDictionary["pid"];
-            return Regex.IsMatch(pidValue, @"^\d{9}$");
+            if (!Regex.IsMatch(passportDictionary["hcl"], @"^#[0-9a-f]{6}$")) return false;
+            
+            if (!Regex.IsMatch(passportDictionary["ecl"], @"^amb|blu|brn|gry|grn|hzl|oth$")) return false;
+            
+            return Regex.IsMatch(passportDictionary["pid"], @"^[0-9]{9}$");
         }
 
-        private static bool YearValueIsValid(string propertyName, int min, int max, Dictionary<string, string> passportDictionary)
+        private static bool NumberInRange(int number, int min, int max)
         {
-            var propertyValue = passportDictionary[propertyName];
-            var propertyInt = short.Parse(propertyValue);
-            return propertyValue.Length == 4 && propertyInt >= min && propertyInt <= max;
+            return number >= min && number <= max;
         }
 
         private static Dictionary<string,string> GenerateDictionaryForPassport(string passport)
