@@ -25,5 +25,12 @@
             var input = File.ReadAllLines(@"Input/input5.txt");
             System.Console.WriteLine(DayFive.CalculateResultForPartOne(input));
         }
+
+        [Test]
+        public void Part2_CalculateResult()
+        {
+            var input = File.ReadAllLines(@"Input/input5.txt");
+            System.Console.WriteLine(DayFive.CalculateResultForPartTwo(input));
+        }
     }
 }
