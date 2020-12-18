@@ -14,6 +14,13 @@
             return ones * threes;
         }
 
+        public static int CalculateResultForPartTwo(string[] input)
+        {
+            var adapterRatings = input.Select(int.Parse).ToList();
+
+            return GetTotalArrangementsForAdapterChain(adapterRatings);
+        }
+
         public static (int ones, int twos, int threes) GetJoltageDistrubutionForAdapterChain(List<int> adapterRatings)
         {
             adapterRatings.Sort();
@@ -34,5 +41,62 @@
 
             return (ones, twos, threes);
         }
+
+        public static int GetTotalArrangementsForAdapterChain(List<int> adapterRatings)
+        {
+            var arrangementsTree = BuildTreeOfPossibleArrangements(adapterRatings);
+
+            return CountArrangements(arrangementsTree);
+        }
+
+        private static int CountArrangements(TreeNode arrangementsTree)
+        {
+            var numberOfChildren = arrangementsTree.Children.Count;
+
+            if (numberOfChildren == 0)
+            {
+                return 1;
+            }
+
+            return arrangementsTree.Children.Sum(CountArrangements);
+        }
+
+        private static TreeNode BuildTreeOfPossibleArrangements(List<int> adapterRatings)
+        {
+            adapterRatings.Sort();
+
+            var treeRoot = new TreeNode
+            {
+                Value = 0,
+                Children = new List<TreeNode>()
+            };
+
+            FindNextAdaptersInChain(adapterRatings, 0, treeRoot);
+
+            return treeRoot;
+        }
+
+        private static void FindNextAdaptersInChain(List<int> adapterRatings, int index, TreeNode currentNode)
+        {
+            while (index < adapterRatings.Count && adapterRatings[index] - currentNode.Value <= 3)
+            {
+                var newChild = new TreeNode
+                {
+                    Value = adapterRatings[index],
+                    Children = new List<TreeNode>(),
+                    //Parent = currentNode
+                };
+                currentNode.Children.Add(newChild);
+                FindNextAdaptersInChain(adapterRatings, ++index, newChild);
+            }
+        }
+    }
+
+    internal class TreeNode
+    {
+        public int Value { get; set; }
+        public List<TreeNode> Children { get; set; }
+        //public TreeNode Parent { get; set; }
     }
 }
+
