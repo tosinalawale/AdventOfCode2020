@@ -44,59 +44,57 @@
 
         public static int GetTotalArrangementsForAdapterChain(List<int> adapterRatings)
         {
-            var arrangementsTree = BuildTreeOfPossibleArrangements(adapterRatings);
+            var arrangementsTree = BuildGraphOfPossibleAdapterArrangements(adapterRatings);
 
             return CountArrangements(arrangementsTree);
         }
 
-        private static int CountArrangements(TreeNode arrangementsTree)
+        private static int CountArrangements(Node arrangements)
         {
-            var numberOfChildren = arrangementsTree.Children.Count;
+            var numberOfChildren = arrangements.Children.Count;
 
-            if (numberOfChildren == 0)
-            {
-                return 1;
-            }
-
-            return arrangementsTree.Children.Sum(CountArrangements);
+            return numberOfChildren == 0 ? 1 : arrangements.Children.Sum(CountArrangements);
         }
 
-        private static TreeNode BuildTreeOfPossibleArrangements(List<int> adapterRatings)
+        private static Node BuildGraphOfPossibleAdapterArrangements(List<int> adapterRatings)
         {
             adapterRatings.Sort();
 
-            var treeRoot = new TreeNode
-            {
-                Value = 0,
-                Children = new List<TreeNode>()
-            };
+            var endToEndAdapterChain = new List<int> { 0 };
+            endToEndAdapterChain.AddRange(adapterRatings);
+            endToEndAdapterChain.Add(adapterRatings[^1] + 3);
 
-            FindNextAdaptersInChain(adapterRatings, 0, treeRoot);
+            var adapterChainNodes = endToEndAdapterChain.Select(
+                a => new Node
+                {
+                    Value = a,
+                    Children = new List<Node>()
+                })
+                .ToList();
 
-            return treeRoot;
+            AddLinksForPossibleAdapterChains(endToEndAdapterChain, adapterChainNodes);
+
+            return adapterChainNodes[0];
         }
 
-        private static void FindNextAdaptersInChain(List<int> adapterRatings, int index, TreeNode currentNode)
+        private static void AddLinksForPossibleAdapterChains(List<int> adapterRatings, List<Node> nodes)
         {
-            while (index < adapterRatings.Count && adapterRatings[index] - currentNode.Value <= 3)
+            for (var i = 0; i < adapterRatings.Count; i++)
             {
-                var newChild = new TreeNode
+                var j = i + 1;
+                while (j < adapterRatings.Count && adapterRatings[j] - adapterRatings[i] <= 3)
                 {
-                    Value = adapterRatings[index],
-                    Children = new List<TreeNode>(),
-                    //Parent = currentNode
-                };
-                currentNode.Children.Add(newChild);
-                FindNextAdaptersInChain(adapterRatings, ++index, newChild);
+                    nodes[i].Children.Add(nodes[j]);
+                    j++;
+                }
             }
         }
     }
 
-    internal class TreeNode
+    internal class Node
     {
         public int Value { get; set; }
-        public List<TreeNode> Children { get; set; }
-        //public TreeNode Parent { get; set; }
+        public List<Node> Children { get; set; }
     }
 }
 
