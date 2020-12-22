@@ -14,7 +14,7 @@
             return ones * threes;
         }
 
-        public static int CalculateResultForPartTwo(string[] input)
+        public static long CalculateResultForPartTwo(string[] input)
         {
             var adapterRatings = input.Select(int.Parse).ToList();
 
@@ -42,21 +42,37 @@
             return (ones, twos, threes);
         }
 
-        public static int GetTotalArrangementsForAdapterChain(List<int> adapterRatings)
+        public static long GetTotalArrangementsForAdapterChain(List<int> adapterRatings)
         {
-            var arrangementsTree = BuildGraphOfPossibleAdapterArrangements(adapterRatings);
+            var adapterArrangementsGraph = BuildGraphOfPossibleAdapterArrangements(adapterRatings);
 
-            return CountArrangements(arrangementsTree);
+            return CalculatePossibleArrangements(adapterArrangementsGraph);
         }
 
-        private static int CountArrangements(Node arrangements)
+        private static long CalculatePossibleArrangements(List<Node> arrangementsGraph)
         {
-            var numberOfChildren = arrangements.Children.Count;
+            for (var index = arrangementsGraph.Count-1; index >= 0; index--)
+            {
+                CalculatePossibleArrangementsForNode(index, arrangementsGraph);
+            }
 
-            return numberOfChildren == 0 ? 1 : arrangements.Children.Sum(CountArrangements);
+            return arrangementsGraph[0].NumberOfArrangements;
         }
 
-        private static Node BuildGraphOfPossibleAdapterArrangements(List<int> adapterRatings)
+        private static void CalculatePossibleArrangementsForNode(int index, List<Node> arrangements)
+        {
+            if (index == arrangements.Count - 1)
+            {
+                arrangements[index].NumberOfArrangements = 1;
+            } 
+            else if (index < arrangements.Count - 1 && index >= 0)
+            {
+                var node = arrangements[index];
+                node.NumberOfArrangements = node.Children.Sum(n => n.NumberOfArrangements);
+            }
+        }
+
+        private static List<Node> BuildGraphOfPossibleAdapterArrangements(List<int> adapterRatings)
         {
             adapterRatings.Sort();
 
@@ -74,7 +90,7 @@
 
             AddLinksForPossibleAdapterChains(endToEndAdapterChain, adapterChainNodes);
 
-            return adapterChainNodes[0];
+            return adapterChainNodes;
         }
 
         private static void AddLinksForPossibleAdapterChains(List<int> adapterRatings, List<Node> nodes)
@@ -94,6 +110,7 @@
     internal class Node
     {
         public int Value { get; set; }
+        public long NumberOfArrangements { get; set; }
         public List<Node> Children { get; set; }
     }
 }
