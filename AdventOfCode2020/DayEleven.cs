@@ -34,6 +34,24 @@
             return result;
         }
 
+        public static int CalculateResultForPartOne(string[] input)
+        {
+            var result = DayEleven.ApplySeatingRules(input);
+            var nextResult = DayEleven.ApplySeatingRules(result);
+            while (!nextResult.SequenceEqual(result))
+            {
+                result = nextResult;
+                nextResult = DayEleven.ApplySeatingRules(result);
+            }
+
+            return CountOccupiedSeats(nextResult);
+        }
+
+        private static int CountOccupiedSeats(string[] nextResult)
+        {
+            return nextResult.Sum(l => l.Count(c => c.Equals('#')));
+        }
+
         private static IList<char> AdjacentPositions(int i, int j, string[] input)
         {
             var positions = new List<char>();
