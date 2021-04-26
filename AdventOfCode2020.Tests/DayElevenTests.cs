@@ -71,5 +71,67 @@
             var input = File.ReadAllLines(@"Input/input11.txt");
             System.Console.WriteLine(DayEleven.CalculateResultForPartOne(input));
         }
+
+        [Test]
+        public void Part2_CanApplySeatingRules()
+        {
+            var input = new[]
+            {
+                "L.LL.LL.LL",
+                "LLLLLLL.LL",
+                "L.L.L..L..",
+                "LLLL.LL.LL",
+                "L.LL.LL.LL",
+                "L.LLLLL.LL",
+                "..L.L.....",
+                "LLLLLLLLLL",
+                "L.LLLLLL.L",
+                "L.LLLLL.LL"
+            };
+
+            var expectedResult = new[]
+            {
+                "#.LL.LL.L#",
+                "#LLLLLL.LL",
+                "L.L.L..L..",
+                "LLLL.LL.LL",
+                "L.LL.LL.LL",
+                "L.LLLLL.LL",
+                "..L.L.....",
+                "LLLLLLLLL#",
+                "#.LLLLLL.L",
+                "#.LLLLL.L#"
+            };
+
+            var result = DayEleven.ApplySeatingRulesV2(input);
+            result = DayEleven.ApplySeatingRulesV2(result);
+            result.Should().BeEquivalentTo(expectedResult);
+        }
+
+        [Test]
+        public void Part2_CalculateResultForSimpleExample()
+        {
+            var input = new[]
+            {
+                "L.LL.LL.LL",
+                "LLLLLLL.LL",
+                "L.L.L..L..",
+                "LLLL.LL.LL",
+                "L.LL.LL.LL",
+                "L.LLLLL.LL",
+                "..L.L.....",
+                "LLLLLLLLLL",
+                "L.LLLLLL.L",
+                "L.LLLLL.LL"
+            };
+            DayEleven.CalculateResultForPartTwo(input).Should().Be(26);
+        }
+
+        [Test]
+        public void Part2_CalculateResult()
+        {
+            var input = File.ReadAllLines(@"Input/input11.txt");
+            System.Console.WriteLine(DayEleven.CalculateResultForPartTwo(input));
+        }
     }
 }

@@ -47,6 +47,87 @@
             return CountOccupiedSeats(nextResult);
         }
 
+        public static int CalculateResultForPartTwo(string[] input)
+        {
+            var result = DayEleven.ApplySeatingRulesV2(input);
+            var nextResult = DayEleven.ApplySeatingRulesV2(result);
+            while (!nextResult.SequenceEqual(result))
+            {
+                result = nextResult;
+                nextResult = DayEleven.ApplySeatingRulesV2(result);
+            }
+
+            return CountOccupiedSeats(nextResult);
+        }
+
+        public static string[] ApplySeatingRulesV2(string[] input)
+        {
+            var result = new string[input.Length];
+            input.CopyTo(result, 0);
+
+            for (var i = 0; i < input.Length; i++)
+            {
+                for (var j = 0; j < input[i].Length; j++)
+                {
+                    var position = input[i][j];
+                    var nearestSeats = GetFirstSeatInEachDirection(i, j, input);
+
+                    switch (position)
+                    {
+                        case 'L' when nearestSeats.All(p => !p.Equals('#')):
+                            ReplaceCharAt(result, i, j, '#');
+                            break;
+                        case '#' when nearestSeats.Count(p => p.Equals('#')) >= 5:
+                            ReplaceCharAt(result, i, j, 'L');
+                            break;
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        private static IList<char> GetFirstSeatInEachDirection(int i, int j, string[] input)
+        {
+            var seats = new List<char>();
+
+            AddFirstSeatInDirection(i, j, input, -1, 0, seats);
+            AddFirstSeatInDirection(i, j, input, -1, -1, seats);
+            AddFirstSeatInDirection(i, j, input, -1, 1, seats);
+            AddFirstSeatInDirection(i, j, input, 1, 0, seats);
+            AddFirstSeatInDirection(i, j, input, 1, -1, seats);
+            AddFirstSeatInDirection(i, j, input, 1, 1, seats);
+            AddFirstSeatInDirection(i, j, input, 0, 1, seats);
+            AddFirstSeatInDirection(i, j, input, 0, -1, seats);
+            
+            return seats;
+        }
+
+        private static void AddFirstSeatInDirection(int i, int j, string[] input, int dX, int dY, IList<char> seats)
+        {
+            var currentPosX = i + dX;
+            var currentPosY = j + dY;
+
+            while (currentPosX >= 0
+                   && currentPosX < input.Length
+                   && currentPosY >= 0
+                   && currentPosY < input[0].Length)
+            {
+                if (IsASeat(input, currentPosX, currentPosY))
+                {
+                    seats.Add(input[currentPosX][currentPosY]);
+                    return;
+                }
+                currentPosX += dX;
+                currentPosY += dY;
+            }
+        }
+
+        private static bool IsASeat(string[] input, int currentPosX, int currentPosY)
+        {
+            return input[currentPosX][currentPosY].Equals('L') || input[currentPosX][currentPosY].Equals('#');
+        }
+
         private static int CountOccupiedSeats(string[] nextResult)
         {
             return nextResult.Sum(l => l.Count(c => c.Equals('#')));
